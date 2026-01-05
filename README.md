@@ -1,133 +1,43 @@
-# Chat-AI - Backend API
-
-Backend service for authentication and multi-modal AI chat. Built with Go, PostgreSQL, and Docker.
+# Axis - A Backend-Focused Web-Interface for interacting with multiple llm agent
 
 ## Quick Links
 
 - **API Docs:** `http://localhost:8080/docs`
-- **Base URL:** `/api/v1`
-- **Auth:** JWT tokens (1-hour expiry)
+- **Base URL:** `http://localhost:8080/api/v1` <br><br>
+- **WEB:**      `http://localhost:8000` 
 
 ## Tech Stack
 
-Go • PostgreSQL • JWT • Docker
-
-## Getting Started
-
-### Prerequisites
-- Go 1.20+
-- PostgreSQL 12+
-- Docker (optional)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/chat-ai.git
-cd chat-ai
-```
-
-2. Install dependencies:
-```bash
-go mod download
-```
-
-3. Configure environment variables (see Configuration section below)
-
-4. Run the application:
-```bash
-go run ./cmd/main
-```
-
-Visit `http://localhost:8080/docs` for interactive API documentation.
-
-### Docker
-
-```bash
-docker-compose up --build
-```
-
----
+- **Frontend:**  Go • PostgreSQL • Docker • Nginx
+- **Backend:**  React • Type-Script
 
 ## Configuration
 
-The application uses two configuration files:
+- **Make sure to create a .env and .env.postgres**
 
-### 1. `.env` - Application Configuration
-
-Copy `.env.example` to `.env`:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your preferences:
+### 2. `.env` - Server Configuration
 
 ```dotenv
-# Environment Type
-ENV=local                          # Options: local, prod
-
-# Database Type
-DATABASE_TYPE=postgres             # Options: mock (testing), postgres (production)
-
-# Logging Configuration
-LEVEL=debug                        # Options: debug, info, warn, error
-FORMAT=json                        # Options: json, text
-
 # Server Configuration
-SERVER_PORT=8080
+SERVER.PORT=8080
+SERVER.CORS_ALLOWED_ORIGINS=http://localhost:8000
 
-# JWT Secret (change this in production!)
-JWT_SECRET=your-super-secret-key-change-this
+# JWT 
+SERVER.JWT_KEY=secret_key   
 
 # AI Services
-AI.LLM_PROVIDER=openrouter
-AI.LLM_API_KEY=<your-openrouter-api-key>
-
-AI.VLM_PROVIDER=mock
-AI.VLM_API_KEY=mock-no-key-needed
+AI_MANAGER.PROVIDER=https://openrouter.ai/api/v1
+AI_MANAGER.API_KEY=api_key
 ```
 
-#### Configuration Options
-
-**ENV** (required)
-- `local` - Development environment with verbose logging
-- `prod` - Production environment with optimized settings
-
-**DATABASE_TYPE** (required)
-- `mock` - In-memory database for testing (data is not persisted)
-- `postgres` - PostgreSQL database for production
-
-**LEVEL** (required)
-- `debug` - Verbose logging for development
-- `info` - Standard information logging
-- `warn` - Only warnings and errors
-- `error` - Only error messages
-
-**FORMAT** (required)
-- `json` - Structured JSON logging for parsing
-- `text` - Human-readable text logging
 
 ### 2. `.env.postgres` - Database Configuration
-
-Copy `.env.postgres.example` to `.env.postgres`:
-```bash
-cp .env.postgres.example .env.postgres
-```
-
-Edit `.env.postgres` with your database details:
 
 ```dotenv
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=yourpassword
 POSTGRES_DB=chat_ai
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
 ```
-
-This file is only used when `DATABASE_TYPE=postgres`.
-
----
-
 ## AI Services Setup
 
 ### LLM (Language Model) - OpenRouter
@@ -143,33 +53,16 @@ The application currently supports **OpenRouter** for language models.
 5. Copy the API key
 6. Paste it in `.env` file:
    ```dotenv
-   AI.LLM_API_KEY=sk-or-xxxxxxxxxxxxx
+   AI_MANAGER.API_KEY=sk-or-xxxxxxxxxxxxx
    ```
-
-### VLM (Vision Language Model)
-
-Currently, only **mock** VLM provider is available. This is a placeholder that returns sample responses for image inputs.
-
-**Configuration:**
-```dotenv
-AI.VLM_PROVIDER=mock
-AI.VLM_API_KEY=mock-no-key-needed
-```
-
-Vision model support will be added in future updates.
-
----
 
 ## Authentication
 
-All endpoints except `/auth/register` and `/auth/login` require a JWT token.
+All endpoints except `/auth/register` and `/auth/login` require a JWT token as cookie
 
-**Include token in requests:**
 ```
-Authorization: Bearer <token>
+Key:<token>
 ```
-
----
 
 ## API Endpoints
 
@@ -183,13 +76,6 @@ Authorization: Bearer <token>
 }
 ```
 
-Response:
-```json
-{
-  "accessToken": "jwt_token_here"
-}
-```
-
 ### Login
 **POST** `/api/v1/auth/login`
 
@@ -200,60 +86,27 @@ Response:
 }
 ```
 
-Response:
-```json
-{
-  "accessToken": "jwt_token_here"
-}
-```
-
 ### Chat
 **POST** `/api/v1/chat` (requires auth)
 
-Send text and/or images. At least one must be provided.
-
 ```json
 {
-  "message_query": "What's in this image?",
-  "image_s": [
-    {
-      "url": "https://example.com/image.jpg",
-      "type": "image/jpeg"
-    }
-  ],
-  "model_config": {
-    "llm_model": "llama_70b",
-    "vlm_model": "mock"
-  }
-}
-```
-
-**Image Format:**
-```json
-{
-  "url": "string (optional - image URL)",
-  "base64": "string (optional - base64 encoded image)",
-  "type": "image/jpeg | image/png | image/webp"
+  "message": "hello",
+  "model": "llama-70b"
 }
 ```
 
 Response:
 ```json
 {
-  "id": "uuid",
-  "user_id": "uuid",
-  "query": "What's in this image?",
-  "response_text": "AI response here",
-  "image_urls": [],
-  "llm_model_name": "llama_70b",
-  "vlm_model_name": "mock",
-  "timestamp": "2025-12-14T10:30:00Z"
+  "id": "95539e01-21fc-44ca-9540-00d314ae0b12",
+  "llm_model_name": "llama-70b",
+  "timestamp": "2025-12-28T18:51:53.391628Z",
+  "user_id": "2be4cf6b-4b5b-43fa-9bed-ad51911cefcf",
+  "query": "hello",
+  "response_text": "Hello! How can I assist you today?"
 }
 ```
-
-**Defaults:**
-- `llm_model`: `llama_70b`
-- `vlm_model`: `mock`
 
 ### Chat History
 **GET** `/api/v1/chat/history` (requires auth)
@@ -270,20 +123,18 @@ Response:
 {
   "data": [
     {
-      "id": "uuid",
-      "user_id": "uuid",
-      "query": "What's in this image?",
-      "response_text": "AI response here",
-      "image_urls": [],
-      "llm_model_name": "llama_70b",
-      "vlm_model_name": "mock",
-      "timestamp": "2025-12-14T10:30:00Z"
+      "id": "string",
+      "llm_model_name": "string",
+      "timestamp": "2026-01-05T15:29:14.023Z",
+      "user_id": "string",
+      "query": "string",
+      "response_text": "string"
     }
   ],
   "page": 1,
-  "limit": 20,
-  "total": 45,
-  "total_pages": 3
+  "limit": 10,
+  "total": 1,
+  "total_pages": 1
 }
 ```
 
@@ -295,75 +146,3 @@ Response:
   "message": "Detailed error message"
 }
 ```
-
-Common Status Codes:
-- `200` - Success
-- `201` - Created
-- `400` - Bad request
-- `401` - Unauthorized (invalid/expired token)
-- `500` - Server error
-
-## Project Structure
-
-```
-├── Makefile
-├── README.md
-├── .env.example
-├── .env.postgres.example
-├── cmd
-│   └── main.go
-├── config
-│   ├── config.go
-│   └── config_test.go
-├── docker-compose.yaml
-├── go.mod
-├── go.sum
-├── internal
-│   ├── database
-│   │   ├── database.go
-│   │   ├── migrations
-│   │   ├── postgres
-│   │   └── mock
-│   ├── server
-│   │   ├── handler
-│   │   ├── middleware
-│   │   ├── router
-│   │   └── manager
-│   └── service
-├── model
-│   ├── dto
-│   ├── entity
-│   └── paginate.go
-├── pkg
-│   ├── hash.go
-│   ├── jwt.go
-│   └── logger
-├── static
-│   ├── openapi.html
-│   └── openapi.json
-└── sqlerr
-```
-
-## Environment Examples
-
-```dotenv
-ENV=local
-DATABASE_TYPE=mock
-LEVEL=debug
-FORMAT=text
-SERVER_PORT=8080
-JWT_SECRET=dev-secret-key
-AI.LLM_PROVIDER=openrouter
-AI.LLM_API_KEY=sk-or-xxxxx
-AI.VLM_PROVIDER=mock
-AI.VLM_API_KEY=mock
-```
-
-## Notes
-
-- Token expires after 1 hour - users must login again
-- Images can be sent via URL or Base64
-- Chat history is user-specific and paginated
-- All timestamps are in ISO 8601 format
-- Use `DATABASE_TYPE=mock` for testing without a database
-- Change `JWT_SECRET` in production to a strong random string
