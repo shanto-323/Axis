@@ -59,7 +59,6 @@ func LoadConfig() (*Config, error) {
 	err := k.Load(env.Provider("", k.Delim(), func(s string) string {
 		return strings.ToLower(s)
 	}), nil)
-
 	if err != nil {
 		logger.Fatal().Err(err).Msg("could not load initial env variables")
 	}
@@ -77,7 +76,6 @@ func LoadConfig() (*Config, error) {
 		config.Observability = DefaultObservabilityConfig()
 	}
 
-	config.Observability.ServiceName = "tasker"
 	config.Observability.Environment = config.Primary.Env
 
 	if err := config.Observability.Validate(); err != nil {
