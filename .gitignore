@@ -1,0 +1,11 @@
+*.txt
+*.exe
+*.out
+
+.env
+.env.postgres
+.DS_Store
+
+vendor/
+.dockerignore
+.git
