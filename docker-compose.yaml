@@ -10,7 +10,7 @@ services:
       - "8000:8000"
       - "8080:8080"
     depends_on:
-      - chat-ai
+      - axis
     networks:
         - net
 
@@ -84,7 +84,7 @@ services:
     depends_on:
       - tempo
 
-  chat-ai:
+  axis:
     build: 
       context: .
       dockerfile: Dockerfile
@@ -92,8 +92,6 @@ services:
       - .env
     volumes:
       - logs:/var/lib/logs
-    ports:
-      - "8080"
     networks:
       - net
     depends_on:
